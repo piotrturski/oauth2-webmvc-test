@@ -21,6 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.DependsOn
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.NoOpPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.oauth2.provider.token.TokenStore
 
 
 @RestController
@@ -41,17 +45,19 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
         return super.authenticationManagerBean()
     }
 
-//    override fun configure(auth: AuthenticationManagerBuilder){
-//        auth.inMemoryAuthentication()
-//                .withUser("admin@admin.pl")
-//                .password("admin")
-//                .roles("USER");
-//    }
+    override fun configure(auth: AuthenticationManagerBuilder){
+        auth.inMemoryAuthentication()
+                .withUser("admin")
+                .password("admin")
+                .roles("USER")
+                ;
+    }
 
      override fun configure(web: WebSecurity) {
-        web.ignoring()
+//        web.ignoring()
                 // Spring Security should completely ignore URLs starting with /resources/
-                .antMatchers("/api/**");
+//                .antMatchers("/api/**")
+//                .antMatchers("/**")
     }
 
     override fun configure(http: HttpSecurity) {
@@ -63,6 +69,12 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                 // set permitAll for all URLs associated with Form Login
 //                .permitAll();
     }
+
+    @Bean
+    fun passwordEncoder(): PasswordEncoder {
+        return NoOpPasswordEncoder.getInstance()
+//        return BCryptPasswordEncoder()
+    }
 }
 
 @Configuration
@@ -73,19 +85,25 @@ class AuthorizationServerConf : AuthorizationServerConfigurerAdapter() {
     @Autowired lateinit var authenticationManager: AuthenticationManager
 
     override fun configure(oauthServer: AuthorizationServerSecurityConfigurer) {
-        oauthServer.tokenKeyAccess("permitAll()").checkTokenAccess("isAuthenticated()")
+        oauthServer
+                .tokenKeyAccess("permitAll()")
+                .checkTokenAccess("isAuthenticated()")
     }
 
     override fun configure(clients: ClientDetailsServiceConfigurer) {
         clients.inMemory()
                 .withClient("my-cliend-id")
-                .secret("frontendClientSecret").authorizedGrantTypes("password","authorization_code", "refresh_token")
-                .accessTokenValiditySeconds(10)
-                .refreshTokenValiditySeconds(40)
+                .secret("frontendClientSecret")
+                .authorizedGrantTypes("password","authorization_code", "refresh_token")
+                .accessTokenValiditySeconds(100)
+                .refreshTokenValiditySeconds(400)
                 .scopes("read")
     }
 
     override fun configure(endpoints: AuthorizationServerEndpointsConfigurer) {
-        endpoints.tokenStore(InMemoryTokenStore()).authenticationManager(authenticationManager)
+        endpoints.tokenStore(inMemoryTokenStore()).authenticationManager(authenticationManager)
     }
+
+    @Bean
+    fun inMemoryTokenStore(): TokenStore = InMemoryTokenStore()
 }
