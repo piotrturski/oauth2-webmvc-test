@@ -17,10 +17,10 @@ repositories {
 }
 
 dependencies {
-//	implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+	implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-//	implementation("org.springframework.boot:spring-boot-starter-security")
-//	implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.1.9.RELEASE")
+	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.1.9.RELEASE")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -28,7 +28,7 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 	}
-//	testImplementation("org.springframework.security:spring-security-test")
+	testImplementation("org.springframework.security:spring-security-test")
 }
 
 tasks.withType<Test> {
