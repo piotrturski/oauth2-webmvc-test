@@ -24,14 +24,17 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.NoOpPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer
+import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter
 import org.springframework.security.oauth2.provider.token.TokenStore
+import java.security.Principal
 
 
 @RestController
 class MyController {
 
     @GetMapping("/api/a")
-    fun a() = 2
+    fun a(principal: Principal): String = """"hello ${principal.name}""""
 }
 
 
@@ -78,7 +81,6 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
 }
 
 @Configuration
-//@Import(SecurityConfig::class)
 @EnableAuthorizationServer
 class AuthorizationServerConf : AuthorizationServerConfigurerAdapter() {
 
@@ -95,8 +97,8 @@ class AuthorizationServerConf : AuthorizationServerConfigurerAdapter() {
                 .withClient("my-cliend-id")
                 .secret("frontendClientSecret")
                 .authorizedGrantTypes("password","authorization_code", "refresh_token")
-                .accessTokenValiditySeconds(100)
-                .refreshTokenValiditySeconds(400)
+                .accessTokenValiditySeconds(3600)
+                .refreshTokenValiditySeconds(3600*24)
                 .scopes("read")
     }
 
@@ -106,4 +108,14 @@ class AuthorizationServerConf : AuthorizationServerConfigurerAdapter() {
 
     @Bean
     fun inMemoryTokenStore(): TokenStore = InMemoryTokenStore()
+}
+
+@Configuration @EnableResourceServer
+public class Oauth2ResourceServerConfig : ResourceServerConfigurerAdapter() {
+    override fun configure(http: HttpSecurity) {
+        http.requestMatchers()
+                .antMatchers("/api/**")
+                .and()
+                .authorizeRequests() .anyRequest() .authenticated()
+    }
 }
