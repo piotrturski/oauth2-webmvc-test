@@ -1,6 +1,7 @@
 package com.example.demo
 
 import com.example.demo.pack.AuthorizationServerConf
+import com.example.demo.pack.MyController
 import com.example.demo.pack.Oauth2ResourceServerConfig
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -32,7 +33,7 @@ class DemoApplicationTests {
 
 }
 
-@WebMvcTest
+@WebMvcTest(MyController::class)
 @Import(AuthorizationServerConf::class, Oauth2ResourceServerConfig::class)
 class MTest {
 
