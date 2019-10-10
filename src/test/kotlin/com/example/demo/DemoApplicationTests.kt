@@ -6,6 +6,7 @@ import com.example.demo.pack.Oauth2ResourceServerConfig
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.sun.security.auth.UserPrincipal
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.notNullValue
 import org.junit.jupiter.api.Test
@@ -15,7 +16,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpHeaders.AUTHORIZATION
+import org.springframework.security.authentication.TestingAuthenticationToken
+import org.springframework.security.core.Authentication
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user
 import org.springframework.test.web.servlet.MockMvc
@@ -23,6 +27,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
+import java.security.Principal
 
 @SpringBootTest
 class DemoApplicationTests {
@@ -34,8 +39,7 @@ class DemoApplicationTests {
 }
 
 @WebMvcTest(MyController::class)
-@Import(AuthorizationServerConf::class, Oauth2ResourceServerConfig::class)
-class MTest {
+class MockedTokenTest {
 
 	@Autowired
 	lateinit var mockMvc: MockMvc
@@ -45,12 +49,20 @@ class MTest {
 
 		mockMvc.perform(
 				get("/api/a")
-					.with(SecurityMockMvcRequestPostProcessors.jwt())
-				)
+						.with(authentication(TestingAuthenticationToken(UserPrincipal("admin"), 2)))
+		)
 				.andExpect(status().isOk)
 				.andExpect(content().json(""""hello admin""""))
 	}
 
+}
+
+@WebMvcTest(MyController::class)
+@Import(AuthorizationServerConf::class, Oauth2ResourceServerConfig::class)
+class RealTokenTest {
+
+	@Autowired
+	lateinit var mockMvc: MockMvc
 
 	@Test
 	fun `call api using real token`() {
