@@ -27,6 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter
 import org.springframework.security.oauth2.provider.token.TokenStore
+import org.springframework.web.bind.annotation.PutMapping
 import java.security.Principal
 
 
@@ -35,6 +36,9 @@ class MyController {
 
     @GetMapping("/api/a")
     fun a(principal: Principal): String = """"hello ${principal.name}""""
+
+    @PutMapping("/api/a")
+    fun b(principal: Principal): String = """"hello ${principal.name}""""
 }
 
 

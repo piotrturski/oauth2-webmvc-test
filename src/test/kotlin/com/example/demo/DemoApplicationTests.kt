@@ -45,10 +45,21 @@ class MockedTokenTest {
 	lateinit var mockMvc: MockMvc
 
 	@Test
-	fun `call api using mocked token`() {
+	fun `call get api using mocked token`() {
 
 		mockMvc.perform(
 				get("/api/a")
+						.with(authentication(TestingAuthenticationToken(UserPrincipal("admin3"), 2)))
+		)
+				.andExpect(status().isOk)
+				.andExpect(content().json(""""hello admin3""""))
+	}
+
+	@Test
+	fun `call put api using mocked token`() {
+
+		mockMvc.perform(
+				put("/api/b")
 						.with(authentication(TestingAuthenticationToken(UserPrincipal("admin3"), 2)))
 		)
 				.andExpect(status().isOk)
