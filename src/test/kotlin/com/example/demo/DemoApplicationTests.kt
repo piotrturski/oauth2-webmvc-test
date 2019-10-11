@@ -49,10 +49,10 @@ class MockedTokenTest {
 
 		mockMvc.perform(
 				get("/api/a")
-						.with(authentication(TestingAuthenticationToken(UserPrincipal("admin"), 2)))
+						.with(authentication(TestingAuthenticationToken(UserPrincipal("admin3"), 2)))
 		)
 				.andExpect(status().isOk)
-				.andExpect(content().json(""""hello admin""""))
+				.andExpect(content().json(""""hello admin3""""))
 	}
 
 }
